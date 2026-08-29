@@ -1,0 +1,14 @@
+name: planner_executor
+description: Planner + executor architecture
+benchmark: local
+task_split: dev
+agent:
+  type: planner_executor
+  success_rate: 0.82
+model: mock
+prompt_version: default
+evaluator_versions:
+  - task_level
+seed: 42
+concurrency: 4
+timeout: 60

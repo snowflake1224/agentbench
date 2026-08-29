@@ -1,0 +1,14 @@
+name: multi_agent_specialized
+description: Specialized multi-agent architecture
+benchmark: local
+task_split: dev
+agent:
+  type: multi_agent
+  success_rate: 0.85
+model: mock
+prompt_version: default
+evaluator_versions:
+  - task_level
+seed: 42
+concurrency: 4
+timeout: 60

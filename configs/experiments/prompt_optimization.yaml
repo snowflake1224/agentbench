@@ -1,0 +1,12 @@
+name: prompt_optimization
+benchmark: local
+agent:
+  type: mock_single
+  success_rate: 0.75
+base_prompt: "You are a helpful AI assistant. Answer the user's question accurately."
+optimization_target: prompt
+dev_split: dev
+validation_split: validation
+test_split: test
+num_candidates: 3
+seed: 42

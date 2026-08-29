@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Install dependencies
+        run: uv pip install --system -e ".[dev]"
+
+      - name: Lint
+        run: ruff check agentbench/
+
+      - name: Type check
+        run: mypy agentbench/ --ignore-missing-imports
+
+      - name: Test
+        run: pytest tests/ -v --tb=short
+
+      - name: E2E smoke test
+        run: pytest tests/test_e2e.py -v -m e2e
+
+  experiment-smoke:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install
+        run: pip install uv && uv pip install --system -e ".[dev]"
+
+      - name: Run experiment smoke
+        run: |
+          agentbench run configs/experiments/single_agent_baseline.yaml
+          python scripts/run_experiments.py

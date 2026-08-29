@@ -1,0 +1,14 @@
+name: single_agent_baseline
+description: Single-agent baseline evaluation
+benchmark: local
+task_split: dev
+agent:
+  type: mock_single
+  success_rate: 0.75
+model: mock
+prompt_version: default
+evaluator_versions:
+  - task_level
+seed: 42
+concurrency: 4
+timeout: 60

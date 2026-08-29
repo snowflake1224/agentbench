@@ -1,0 +1,31 @@
+{
+  "title": "AgentBench Overview",
+  "uid": "agentbench-overview",
+  "panels": [
+    {
+      "title": "Experiment Runs",
+      "type": "stat",
+      "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0},
+      "targets": [{"expr": "sum(agentbench_experiment_runs_total)"}]
+    },
+    {
+      "title": "Task Success Rate",
+      "type": "gauge",
+      "gridPos": {"h": 4, "w": 6, "x": 6, "y": 0},
+      "targets": [{"expr": "sum(agentbench_task_results_total{success=\"True\"}) / sum(agentbench_task_results_total)"}]
+    },
+    {
+      "title": "Task Latency",
+      "type": "heatmap",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4},
+      "targets": [{"expr": "rate(agentbench_task_latency_seconds_bucket[5m])"}]
+    },
+    {
+      "title": "Failure Categories",
+      "type": "piechart",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4},
+      "targets": [{"expr": "sum by (category) (agentbench_failures_total)"}]
+    }
+  ],
+  "schemaVersion": 39
+}
