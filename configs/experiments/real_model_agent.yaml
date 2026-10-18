@@ -1,0 +1,21 @@
+name: real_model_agent
+description: Real OpenAI-compatible model agent with structured LLM judge
+benchmark: local
+task_split: validation
+task_subset:
+  - local_004
+agent:
+  type: model_single
+  provider: openai_compatible
+  # base_url may point to OpenAI, vLLM, Ollama, or another compatible endpoint.
+  base_url: https://api.openai.com/v1
+model: gpt-4o-mini
+prompt_version: real-agent-v1
+evaluator_versions:
+  - llm_judge
+evaluator_config:
+  provider: openai_compatible
+  base_url: https://api.openai.com/v1
+seed: 42
+concurrency: 1
+timeout: 120

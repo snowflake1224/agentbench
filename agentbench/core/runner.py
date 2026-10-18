@@ -5,7 +5,6 @@ from __future__ import annotations
 import asyncio
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
 
 import yaml
 
@@ -17,7 +16,14 @@ from agentbench.core.reproducibility import get_git_revision
 from agentbench.core.trace import TraceEvent
 from agentbench.evaluators.base import get_evaluators
 from agentbench.storage.repository import RunRepository
-from agentbench.tracing.metrics import ACTIVE_RUNS, EXPERIMENT_RUNS, FAILURE_CATEGORIES, TASK_COST, TASK_LATENCY, TASK_RESULTS
+from agentbench.tracing.metrics import (
+    ACTIVE_RUNS,
+    EXPERIMENT_RUNS,
+    FAILURE_CATEGORIES,
+    TASK_COST,
+    TASK_LATENCY,
+    TASK_RESULTS,
+)
 from agentbench.tracing.otel import init_tracing, record_trace_event, trace_span
 
 
@@ -34,7 +40,7 @@ class ExperimentRunner:
         return ExperimentConfig.model_validate(data)
 
     async def run(self, config: ExperimentConfig) -> ExperimentRun:
-        init_tracing(console=True)
+        init_tracing()
 
         run = ExperimentRun(
             config=config,
@@ -48,7 +54,11 @@ class ExperimentRunner:
 
         agent = create_agent(config.agent)
         await agent.initialize(config.agent)
-        evaluators = get_evaluators(config.evaluator_versions, model=config.model)
+        evaluators = get_evaluators(
+            config.evaluator_versions,
+            model=config.judge_model or config.model,
+            provider_config=config.evaluator_config,
+        )
         if not evaluators:
             evaluators = get_evaluators(["task_level"], model=config.model)
 
@@ -66,6 +76,7 @@ class ExperimentRunner:
                             task=task,
                             prompt_version=config.prompt_version,
                             model=config.model,
+                            temperature=config.temperature,
                         )
                         agent_result = await agent.run_task(ctx)
 
@@ -73,13 +84,17 @@ class ExperimentRunner:
                             record_trace_event(trace)
                             all_traces.append(trace)
 
-                        eval_result = evaluators[0].evaluate(task, agent_result)
+                        eval_result = await evaluators[0].evaluate(task, agent_result)
 
-                        TASK_RESULTS.labels(benchmark=config.benchmark, success=str(eval_result.passed)).inc()
-                        TASK_LATENCY.labels(benchmark=config.benchmark, agent_type=agent.agent_type).observe(
-                            agent_result.latency_ms / 1000
+                        TASK_RESULTS.labels(
+                            benchmark=config.benchmark, success=str(eval_result.passed)
+                        ).inc()
+                        TASK_LATENCY.labels(
+                            benchmark=config.benchmark, agent_type=agent.agent_type
+                        ).observe(agent_result.latency_ms / 1000)
+                        TASK_COST.labels(model=config.model).observe(
+                            agent_result.estimated_cost_usd
                         )
-                        TASK_COST.labels(model=config.model).observe(agent_result.estimated_cost_usd)
                         for cat in eval_result.failure_categories:
                             FAILURE_CATEGORIES.labels(category=cat).inc()
 
@@ -110,11 +125,15 @@ class ExperimentRunner:
             run.status = RunStatus.FAILED
             run.metadata["error"] = str(e)
             EXPERIMENT_RUNS.labels(
-                benchmark=config.benchmark, agent_type=config.agent.get("type", "unknown"), status="failed"
+                benchmark=config.benchmark,
+                agent_type=config.agent.get("type", "unknown"),
+                status="failed",
             ).inc()
         finally:
             ACTIVE_RUNS.dec()
             await agent.terminate()
+            for evaluator in evaluators:
+                await evaluator.close()
             await self._repo.save_run(run)
             await self._repo.save_traces(run.run_id, all_traces)
 

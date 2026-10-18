@@ -13,13 +13,15 @@ class Settings(BaseSettings):
     database_url: str = "postgresql+asyncpg://agentbench:agentbench@localhost:5432/agentbench"
     database_url_sync: str = "postgresql://agentbench:agentbench@localhost:5432/agentbench"
     redis_url: str = "redis://localhost:6379/0"
-    otel_exporter_otlp_endpoint: str = "http://localhost:4317"
+    otel_exporter_otlp_endpoint: str = ""
     otel_service_name: str = "agentbench"
     artifacts_dir: Path = Path("./artifacts")
     sandbox_enabled: bool = True
     max_tool_output_bytes: int = 1_048_576
     openai_api_key: str = ""
+    openai_base_url: str = "https://api.openai.com/v1"
     anthropic_api_key: str = ""
+    storage_backend: str = "file"
 
     # Configurable pricing (USD per 1K tokens)
     pricing: dict[str, dict[str, float]] = {

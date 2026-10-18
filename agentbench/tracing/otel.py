@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Generator
 from contextlib import contextmanager
-from typing import Any, Generator
+from typing import Any
 
 from opentelemetry import trace
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
@@ -29,12 +30,9 @@ def init_tracing(service_name: str | None = None, console: bool = False) -> None
 
     if console:
         provider.add_span_processor(BatchSpanProcessor(ConsoleSpanExporter()))
-    else:
-        try:
-            exporter = OTLPSpanExporter(endpoint=settings.otel_exporter_otlp_endpoint, insecure=True)
-            provider.add_span_processor(BatchSpanProcessor(exporter))
-        except Exception:
-            provider.add_span_processor(BatchSpanProcessor(ConsoleSpanExporter()))
+    elif settings.otel_exporter_otlp_endpoint:
+        exporter = OTLPSpanExporter(endpoint=settings.otel_exporter_otlp_endpoint, insecure=True)
+        provider.add_span_processor(BatchSpanProcessor(exporter))
 
     trace.set_tracer_provider(provider)
     _tracer = trace.get_tracer("agentbench")

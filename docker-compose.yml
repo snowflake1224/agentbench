@@ -61,6 +61,8 @@ services:
       - "8000:8000"
     environment:
       DATABASE_URL: postgresql+asyncpg://agentbench:agentbench@postgres:5432/agentbench
+      DATABASE_URL_SYNC: postgresql://agentbench:agentbench@postgres:5432/agentbench
+      STORAGE_BACKEND: postgres
       REDIS_URL: redis://redis:6379/0
       OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4317
     volumes:

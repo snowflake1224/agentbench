@@ -12,14 +12,15 @@ AgentBench is an AI evaluation and research infrastructure project — not a cha
 - **Multi-agent evaluation** with parent-child trace reconstruction
 - **Tool-use evaluation** with routing strategy comparison
 - **Trajectory analysis** (loops, retries, invalid calls, excessive context)
-- **LLM-as-judge** with structured output schema
+- **LLM-as-judge** using a real OpenAI-compatible API call and strict JSON schema
 - **Deterministic evaluators** (exact match, regex, JSON schema, expected tool calls)
 - **Statistical comparison** with bootstrap confidence intervals and paired Wilcoxon tests
 - **Failure taxonomy** with structured categorization
 - **Prompt optimization** with dev/validation/test split separation
 - **Regression testing** gates for CI/CD integration
 - **OpenTelemetry** tracing + Prometheus metrics + Grafana dashboards
-- **Framework-independent** agent adapters (mock, LangGraph-ready, external coding agents)
+- **Framework-independent** agent adapters (deterministic mock, real model-backed, external coding boundary)
+- **Durable PostgreSQL storage** through async SQLAlchemy and Alembic migrations
 
 ## Quick Start
 
@@ -29,6 +30,9 @@ uv pip install -e ".[dev]"
 
 # Run an experiment
 agentbench run configs/experiments/single_agent_baseline.yaml
+
+# Real model + structured LLM judge (requires OPENAI_API_KEY)
+agentbench run configs/experiments/real_model_agent.yaml
 
 # Compare two runs
 agentbench compare <RUN_A> <RUN_B>
@@ -60,13 +64,13 @@ docker compose up -d
 ```
 agentbench/
 ├── core/           # Task, trace, experiment models
-├── adapters/       # Agent adapters (mock, routed, external coding)
+├── adapters/       # Agent adapters (mock, real model, routed, external coding)
 ├── benchmarks/     # GAIA, ToolBench, SWE-bench, local fixtures
 ├── evaluators/     # Plugin-based evaluation framework
 ├── statistics/     # Bootstrap CI, paired comparison
 ├── optimization/   # Prompt optimization, fine-tuning pipeline
 ├── tracing/        # OpenTelemetry + Prometheus
-├── storage/        # Repository abstraction, prompt versioning
+├── storage/        # File/PostgreSQL repositories, prompt versioning
 ├── api/            # FastAPI REST API + dashboard
 ├── cli/            # CLI commands
 └── configs/        # Experiment configurations

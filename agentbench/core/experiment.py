@@ -28,9 +28,12 @@ class ExperimentConfig(BaseModel):
     task_split: str = "dev"
     agent: dict[str, Any]
     model: str = "mock"
+    judge_model: str | None = None
+    temperature: float = 0.0
     prompt_version: str = "default"
     tools: list[str] = Field(default_factory=list)
     evaluator_versions: list[str] = Field(default_factory=lambda: ["task_level"])
+    evaluator_config: dict[str, Any] = Field(default_factory=dict)
     seed: int = 42
     concurrency: int = 1
     timeout: float = 300.0

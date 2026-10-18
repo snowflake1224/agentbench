@@ -15,11 +15,11 @@ from agentbench.core.regression import RegressionThresholds, check_regression
 from agentbench.core.runner import ExperimentRunner
 from agentbench.optimization.optimizer import OptimizationConfig, PromptOptimizer
 from agentbench.statistics.comparison import compare_runs, run_summary
+from agentbench.storage.factory import create_run_repository
 from agentbench.storage.prompts import PromptStore
-from agentbench.storage.repository import FileRunRepository
 
 console = Console()
-repo = FileRunRepository()
+repo = create_run_repository()
 runner = ExperimentRunner(repo)
 
 

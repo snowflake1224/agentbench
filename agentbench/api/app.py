@@ -15,10 +15,10 @@ from agentbench.core.experiment import ExperimentConfig, ExperimentRun
 from agentbench.core.regression import RegressionThresholds, check_regression
 from agentbench.core.runner import ExperimentRunner
 from agentbench.statistics.comparison import compare_runs, run_summary
+from agentbench.storage.factory import create_run_repository
 from agentbench.storage.prompts import PromptStore
-from agentbench.storage.repository import FileRunRepository
 
-repo = FileRunRepository()
+repo = create_run_repository()
 runner = ExperimentRunner(repo)
 prompt_store = PromptStore()
 
@@ -26,6 +26,7 @@ prompt_store = PromptStore()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     yield
+    await repo.close()
 
 
 app = FastAPI(title="AgentBench", version="0.1.0", lifespan=lifespan)

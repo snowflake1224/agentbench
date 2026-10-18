@@ -5,10 +5,9 @@ from __future__ import annotations
 import abc
 import json
 from pathlib import Path
-from typing import Any
 
 from agentbench.config import settings
-from agentbench.core.experiment import ExperimentRun, RunStatus
+from agentbench.core.experiment import ExperimentRun
 from agentbench.core.trace import TraceEvent
 
 
@@ -29,6 +28,10 @@ class RunRepository(abc.ABC):
 
     @abc.abstractmethod
     async def get_traces(self, run_id: str, task_id: str | None = None) -> list[TraceEvent]: ...
+
+    async def close(self) -> None:
+        """Release repository resources."""
+        return None
 
 
 class FileRunRepository(RunRepository):

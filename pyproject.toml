@@ -13,6 +13,7 @@ dependencies = [
     "pydantic-settings>=2.6.0",
     "sqlalchemy[asyncio]>=2.0.36",
     "asyncpg>=0.30.0",
+    "psycopg[binary]>=3.2.0",
     "alembic>=1.14.0",
     "redis>=5.2.0",
     "httpx>=0.28.0",
@@ -43,6 +44,7 @@ dev = [
     "mypy>=1.13.0",
     "types-PyYAML>=6.0.12",
     "types-redis>=4.6.0",
+    "aiosqlite>=0.20.0",
 ]
 langgraph = ["langgraph>=0.2.0", "langchain-core>=0.3.0"]
 finetune = ["peft>=0.13.0", "transformers>=4.46.0", "datasets>=3.1.0", "torch>=2.5.0"]

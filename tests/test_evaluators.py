@@ -25,25 +25,25 @@ def _make_result(output: str = "42", traces=None) -> AgentResult:
     return AgentResult(output=output, traces=traces or [])
 
 
-def test_exact_match_pass():
+async def test_exact_match_pass():
     ev = ExactMatchEvaluator()
     task = _make_task(expected_behavior=ExpectedBehavior(answer="42"))
     result = _make_result("42")
-    r = ev.evaluate(task, result)
+    r = await ev.evaluate(task, result)
     assert r.passed
     assert r.score == 1.0
 
 
-def test_exact_match_fail():
+async def test_exact_match_fail():
     ev = ExactMatchEvaluator()
     task = _make_task(expected_behavior=ExpectedBehavior(answer="42"))
     result = _make_result("43")
-    r = ev.evaluate(task, result)
+    r = await ev.evaluate(task, result)
     assert not r.passed
     assert r.score == 0.0
 
 
-def test_expected_tool_call():
+async def test_expected_tool_call():
     ev = ExpectedToolCallEvaluator()
     task = _make_task(
         available_tools=["search", "calculator"],
@@ -53,11 +53,11 @@ def test_expected_tool_call():
         TraceEvent(run_id="r", task_id="t1", event_type=TraceEventType.TOOL_CALL, tool="search"),
     ]
     result = _make_result(traces=traces)
-    r = ev.evaluate(task, result)
+    r = await ev.evaluate(task, result)
     assert r.passed
 
 
-def test_trajectory_loop_detection():
+async def test_trajectory_loop_detection():
     ev = TrajectoryEvaluator()
     task = _make_task()
     traces = [
@@ -65,14 +65,14 @@ def test_trajectory_loop_detection():
         for _ in range(6)
     ]
     result = _make_result(traces=traces)
-    r = ev.evaluate(task, result)
+    r = await ev.evaluate(task, result)
     assert "looping" in r.failure_categories or r.score < 1.0
 
 
-def test_task_level_aggregation():
+async def test_task_level_aggregation():
     ev = TaskLevelEvaluator()
     task = _make_task(expected_behavior=ExpectedBehavior(answer="42"))
     result = _make_result("42")
-    r = ev.evaluate(task, result)
+    r = await ev.evaluate(task, result)
     assert r.passed
     assert r.score > 0.5

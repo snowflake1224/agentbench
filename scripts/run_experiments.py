@@ -9,14 +9,16 @@ import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
+import yaml
+
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from agentbench.core.runner import ExperimentRunner
 from agentbench.optimization.optimizer import OptimizationConfig, PromptOptimizer
 from agentbench.statistics.comparison import compare_runs, run_summary
+from agentbench.storage.factory import create_run_repository
 from agentbench.storage.prompts import PromptStore
-from agentbench.storage.repository import FileRunRepository
 
 EXPERIMENTS = [
     "configs/experiments/single_agent_baseline.yaml",
@@ -29,7 +31,7 @@ EXPERIMENTS = [
 
 
 async def main() -> None:
-    repo = FileRunRepository()
+    repo = create_run_repository()
     runner = ExperimentRunner(repo)
     results: dict[str, str] = {}
 
@@ -66,8 +68,12 @@ async def main() -> None:
         if run_a and run_b:
             comp = compare_runs(run_a, run_b)
             comparisons["single_vs_planner_executor"] = comp.model_dump()
-            print(f"\nSingle vs Planner+Executor:")
-            print(f"  Success: {comp.success_rate.value_a:.1%} -> {comp.success_rate.value_b:.1%} (diff: {comp.success_rate.difference:+.1%})")
+            print("\nSingle vs Planner+Executor:")
+            print(
+                f"  Success: {comp.success_rate.value_a:.1%} -> "
+                f"{comp.success_rate.value_b:.1%} "
+                f"(diff: {comp.success_rate.difference:+.1%})"
+            )
             print(f"  Significant: {comp.success_rate.significant}")
 
     # B vs C: planner_executor vs planner_executor_critic
@@ -77,14 +83,18 @@ async def main() -> None:
         if run_a and run_b:
             comp = compare_runs(run_a, run_b)
             comparisons["planner_executor_vs_critic"] = comp.model_dump()
-            print(f"\nPlanner+Executor vs +Critic:")
-            print(f"  Success: {comp.success_rate.value_a:.1%} -> {comp.success_rate.value_b:.1%} (diff: {comp.success_rate.difference:+.1%})")
+            print("\nPlanner+Executor vs +Critic:")
+            print(
+                f"  Success: {comp.success_rate.value_a:.1%} -> "
+                f"{comp.success_rate.value_b:.1%} "
+                f"(diff: {comp.success_rate.difference:+.1%})"
+            )
             print(f"  Significant: {comp.success_rate.significant}")
 
     # Tool routing comparison
     routing_runs = {k: v for k, v in results.items() if k.startswith("tool_routing")}
     if len(routing_runs) >= 2:
-        print(f"\nTool Routing Comparison:")
+        print("\nTool Routing Comparison:")
         routing_summaries = {}
         for name, run_id in routing_runs.items():
             run = await repo.get_run(run_id)
@@ -94,10 +104,9 @@ async def main() -> None:
                 print(f"  {name}: {s['success_rate']['mean']:.1%}")
 
     # Prompt optimization
-    print(f"\nRunning prompt optimization...")
-    opt_config = OptimizationConfig.model_validate(
-        __import__("yaml").safe_load(open("configs/experiments/prompt_optimization.yaml"))
-    )
+    print("\nRunning prompt optimization...")
+    with open("configs/experiments/prompt_optimization.yaml") as config_file:
+        opt_config = OptimizationConfig.model_validate(yaml.safe_load(config_file))
     optimizer = PromptOptimizer(runner, PromptStore())
     opt_result = await optimizer.optimize(opt_config)
     print(f"  Best validation score: {opt_result.best_validation_score:.1%}")
@@ -105,9 +114,9 @@ async def main() -> None:
     print(f"  Candidates: {len(opt_result.candidates)}")
 
     # Failure taxonomy analysis
-    print(f"\nFailure Taxonomy Analysis:")
+    print("\nFailure Taxonomy Analysis:")
     all_failures: dict[str, int] = {}
-    for name, run_id in results.items():
+    for run_id in results.values():
         run = await repo.get_run(run_id)
         if run:
             for r in run.task_results:
@@ -124,12 +133,13 @@ async def main() -> None:
         "optimization": opt_result.model_dump(),
         "failure_taxonomy": all_failures,
         "note": "Results from deterministic mock agents on local benchmark. "
-                "Real LLM-backed experiments require API keys and will produce different results.",
+        "Real LLM-backed experiments require API keys and will produce different results.",
     }
     report_path = Path("artifacts/experiment_report.json")
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(json.dumps(report, indent=2, default=str))
     print(f"\nReport saved to: {report_path}")
+    await repo.close()
 
 
 if __name__ == "__main__":

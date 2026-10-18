@@ -40,7 +40,9 @@ AgentAdapter
 └── agent_id, agent_type
 ```
 
-Adapters normalize traces regardless of underlying framework (mock, LangGraph, custom Python, external coding agents).
+Adapters normalize traces regardless of the underlying framework. `ModelAgentAdapter`
+executes tasks through a real OpenAI-compatible endpoint; deterministic mock
+adapters remain available for CI.
 
 ### Trace Model
 
@@ -65,6 +67,8 @@ Evaluator (base)
 ```
 
 Scoring logic is versioned. Evaluators assign failure categories from the structured taxonomy.
+`LLMJudgeEvaluator` calls a configured model provider with strict JSON-schema
+response formatting and validates the returned payload with Pydantic.
 
 ### Statistical Engine
 
@@ -88,9 +92,11 @@ Configuration-driven engine that:
 Repository abstraction supporting:
 - `FileRunRepository` (development)
 - `InMemoryRunRepository` (testing)
-- PostgreSQL (production, via SQLAlchemy — schema extensible)
+- `PostgresRunRepository` (production, async SQLAlchemy)
 
-Large artifacts (traces, outputs) stored separately from metadata.
+Alembic owns the PostgreSQL schema. Runs and normalized trace events are stored
+in separate indexed tables. Select the backend with `STORAGE_BACKEND=postgres`
+and apply migrations with `alembic upgrade head`.
 
 ## Observability
 

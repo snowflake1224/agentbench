@@ -28,7 +28,9 @@ The judge outputs a structured schema with per-criterion scores, not arbitrary p
 - Non-deterministic: run multiple times for stability
 - Cannot reliably evaluate factual claims without grounding
 
-When API access is unavailable, a heuristic fallback is used (clearly labeled in results).
+The LLM judge requires a configured OpenAI-compatible endpoint. It fails clearly
+when credentials are absent; it never substitutes heuristic scores while
+claiming they came from a model.
 
 ### Trajectory Evaluators
 

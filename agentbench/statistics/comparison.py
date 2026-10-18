@@ -8,7 +8,7 @@ import numpy as np
 from pydantic import BaseModel, Field
 from scipy import stats
 
-from agentbench.core.experiment import ExperimentRun, TaskResult
+from agentbench.core.experiment import ExperimentRun
 
 
 class DistributionStats(BaseModel):
@@ -73,7 +73,11 @@ def bootstrap_ci(
 
     boot_arr = np.array(boot_stats)
     alpha = (1 - confidence) / 2
-    return float(np.mean(data)), float(np.percentile(boot_arr, alpha * 100)), float(np.percentile(boot_arr, (1 - alpha) * 100))
+    return (
+        float(np.mean(data)),
+        float(np.percentile(boot_arr, alpha * 100)),
+        float(np.percentile(boot_arr, (1 - alpha) * 100)),
+    )
 
 
 def compute_distribution(values: list[float], seed: int = 42) -> DistributionStats:
@@ -94,8 +98,11 @@ def compute_distribution(values: list[float], seed: int = 42) -> DistributionSta
     )
 
 
-def compare_runs(run_a: ExperimentRun, run_b: ExperimentRun, seed: int = 42) -> ExperimentComparison:
+def compare_runs(
+    run_a: ExperimentRun, run_b: ExperimentRun, seed: int = 42
+) -> ExperimentComparison:
     """Statistically compare two experiment runs."""
+
     def extract(run: ExperimentRun, attr: str) -> list[float]:
         return [getattr(r, attr) for r in run.task_results]
 
@@ -120,17 +127,26 @@ def compare_runs(run_a: ExperimentRun, run_b: ExperimentRun, seed: int = 42) -> 
             task_ids_a = [r.task_id for r in run_a.task_results]
             task_ids_b = [r.task_id for r in run_b.task_results]
             if task_ids_a == task_ids_b:
-                try:
-                    stat, p_value = stats.wilcoxon(arr_a, arr_b)
-                    significant = p_value < 0.05
-                except ValueError:
-                    pass
+                if np.allclose(arr_a, arr_b):
+                    p_value = 1.0
+                else:
+                    try:
+                        _, p_value = stats.wilcoxon(arr_a, arr_b)
+                        significant = p_value < 0.05
+                    except ValueError:
+                        pass
 
         return ComparisonResult(
-            run_a_id=run_a.run_id, run_b_id=run_b.run_id, metric=metric,
-            value_a=mean_a, value_b=mean_b, difference=diff,
-            ci_lower=ci_b_lo - ci_a_hi, ci_upper=ci_b_hi - ci_a_lo,
-            p_value=p_value, significant=significant,
+            run_a_id=run_a.run_id,
+            run_b_id=run_b.run_id,
+            metric=metric,
+            value_a=mean_a,
+            value_b=mean_b,
+            difference=diff,
+            ci_lower=ci_b_lo - ci_a_hi,
+            ci_upper=ci_b_hi - ci_a_lo,
+            p_value=p_value,
+            significant=significant,
         )
 
     def failure_dist(run: ExperimentRun) -> dict[str, int]:
@@ -155,7 +171,8 @@ def compare_runs(run_a: ExperimentRun, run_b: ExperimentRun, seed: int = 42) -> 
         }
 
     return ExperimentComparison(
-        run_a=run_a.run_id, run_b=run_b.run_id,
+        run_a=run_a.run_id,
+        run_b=run_b.run_id,
         success_rate=compare_metric("success", transform=lambda x: float(x)),
         latency=compare_metric("latency_ms"),
         cost=compare_metric("estimated_cost_usd"),
