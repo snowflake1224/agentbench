@@ -21,7 +21,8 @@ class RoutedAgentAdapter(MockAgentAdapter):
         routing_strategy: ToolRoutingStrategy = ToolRoutingStrategy.UNRESTRICTED,
         agent_id: str | None = None,
     ) -> None:
-        super().__init__(agent_type="routed", agent_id=agent_id or f"routed_{routing_strategy.value}")
+        resolved_id = agent_id or f"routed_{routing_strategy.value}"
+        super().__init__(agent_type="routed", agent_id=resolved_id)
         self._router = ToolRouter(routing_strategy)
 
     async def run_task(self, context: AgentRunContext) -> AgentResult:

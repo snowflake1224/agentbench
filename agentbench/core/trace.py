@@ -70,7 +70,14 @@ class TraceEvent(BaseModel):
             val = getattr(self, key)
             if val is not None:
                 attrs[key] = val
-        for key in ("latency_ms", "input_tokens", "output_tokens", "estimated_cost_usd", "retry_count"):
+        numeric_keys = (
+            "latency_ms",
+            "input_tokens",
+            "output_tokens",
+            "estimated_cost_usd",
+            "retry_count",
+        )
+        for key in numeric_keys:
             val = getattr(self, key)
             if val is not None:
                 attrs[key] = val

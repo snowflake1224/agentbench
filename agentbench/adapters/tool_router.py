@@ -16,7 +16,11 @@ class ToolRoutingStrategy(StrEnum):
 class ToolRouter:
     """Route tools based on strategy configuration."""
 
-    def __init__(self, strategy: ToolRoutingStrategy, rules: dict[str, list[str]] | None = None) -> None:
+    def __init__(
+        self,
+        strategy: ToolRoutingStrategy,
+        rules: dict[str, list[str]] | None = None,
+    ) -> None:
         self.strategy = strategy
         self.rules = rules or {
             "general": ["search", "calculator", "read_file"],
@@ -24,7 +28,12 @@ class ToolRouter:
             "coding": ["read_file", "write_file", "run_tests", "grep"],
         }
 
-    def select_tools(self, category: str, available_tools: list[str], task_input: str = "") -> list[str]:
+    def select_tools(
+        self,
+        category: str,
+        available_tools: list[str],
+        task_input: str = "",
+    ) -> list[str]:
         if self.strategy == ToolRoutingStrategy.UNRESTRICTED:
             return available_tools
 

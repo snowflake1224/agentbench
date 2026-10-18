@@ -48,7 +48,8 @@ def check_regression(
 
     # Latency check
     if comparison.latency.value_a > 0:
-        latency_increase = (comparison.latency.value_b - comparison.latency.value_a) / comparison.latency.value_a
+        baseline_latency = comparison.latency.value_a
+        latency_increase = (comparison.latency.value_b - baseline_latency) / baseline_latency
         latency_ok = latency_increase <= thresholds.max_latency_increase_pct
     else:
         latency_increase = 0
@@ -64,7 +65,8 @@ def check_regression(
 
     # Cost check
     if comparison.cost.value_a > 0:
-        cost_increase = (comparison.cost.value_b - comparison.cost.value_a) / comparison.cost.value_a
+        baseline_cost = comparison.cost.value_a
+        cost_increase = (comparison.cost.value_b - baseline_cost) / baseline_cost
         cost_ok = cost_increase <= thresholds.max_cost_increase_pct
     else:
         cost_increase = 0

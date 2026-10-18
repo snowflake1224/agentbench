@@ -45,7 +45,10 @@ async def run(config: str) -> None:
     summary = run_summary(result)
     sr = summary.get("success_rate", {})
     console.print(f"\n[green]Completed[/] run_id={result.run_id}")
-    console.print(f"  Success rate: {sr.get('mean', 0):.1%} [{sr.get('ci_lower', 0):.1%}, {sr.get('ci_upper', 0):.1%}]")
+    mean = sr.get("mean", 0)
+    lower = sr.get("ci_lower", 0)
+    upper = sr.get("ci_upper", 0)
+    console.print(f"  Success rate: {mean:.1%} [{lower:.1%}, {upper:.1%}]")
     console.print(f"  Tasks: {summary.get('n_tasks', 0)}")
     console.print(f"  Latency: {summary.get('latency_ms', {}).get('mean', 0):.0f}ms")
     console.print(f"  Cost: ${summary.get('cost_usd', {}).get('mean', 0):.4f}")
@@ -90,7 +93,10 @@ async def trace(run_id: str) -> None:
     """Show traces for a run."""
     traces = await repo.get_traces(run_id)
     for t in traces[:50]:
-        console.print(f"  [{t.event_type.value}] {t.agent_id or '-'} {t.tool or ''} {t.latency_ms or ''}ms")
+        agent = t.agent_id or "-"
+        tool = t.tool or ""
+        latency = t.latency_ms or ""
+        console.print(f"  [{t.event_type.value}] {agent} {tool} {latency}ms")
 
 
 @cli.command()
@@ -151,7 +157,7 @@ async def optimize(config: str) -> None:
     opt_config = OptimizationConfig.model_validate(data)
     optimizer = PromptOptimizer(runner, PromptStore())
     result = await optimizer.optimize(opt_config)
-    console.print(f"[green]Optimization complete[/]")
+    console.print("[green]Optimization complete[/]")
     console.print(f"  Best candidate: {result.best_candidate_id}")
     console.print(f"  Validation score: {result.best_validation_score:.1%}")
     if result.test_score is not None:

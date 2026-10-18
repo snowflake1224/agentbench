@@ -13,7 +13,12 @@ def estimate_cost(model: str, input_tokens: int, output_tokens: int) -> float:
     return round(input_cost + output_cost, 6)
 
 
-def efficiency_metrics(success_rate: float, total_cost: float, total_tokens: int, total_latency_s: float) -> dict[str, float]:
+def efficiency_metrics(
+    success_rate: float,
+    total_cost: float,
+    total_tokens: int,
+    total_latency_s: float,
+) -> dict[str, float]:
     """Compute efficiency metrics."""
     return {
         "success_per_dollar": success_rate / total_cost if total_cost > 0 else float("inf"),

@@ -90,8 +90,14 @@ async def get_failures(run_id: str) -> list[dict]:
     if not run:
         raise HTTPException(404, "Run not found")
     return [
-        {"task_id": r.task_id, "failure_categories": r.failure_categories, "score": r.score, "output": r.output}
-        for r in run.task_results if not r.success
+        {
+            "task_id": r.task_id,
+            "failure_categories": r.failure_categories,
+            "score": r.score,
+            "output": r.output,
+        }
+        for r in run.task_results
+        if not r.success
     ]
 
 
@@ -159,7 +165,10 @@ th, td {{ border: 1px solid #334155; padding: 0.5rem 1rem; text-align: left; }}
 th {{ background: #1e293b; }}
 tr:nth-child(even) {{ background: #1e293b; }}
 a {{ color: #38bdf8; }}
-.metric {{ display: inline-block; background: #1e293b; padding: 1rem; margin: 0.5rem; border-radius: 8px; }}
+.metric {{
+  display: inline-block; background: #1e293b;
+  padding: 1rem; margin: 0.5rem; border-radius: 8px;
+}}
 </style></head><body>
 <h1>AgentBench Dashboard</h1>
 <p>AI Agent Evaluation & Reliability Platform</p>
@@ -170,7 +179,10 @@ a {{ color: #38bdf8; }}
 </div>
 <h2>Recent Runs</h2>
 <table>
-<tr><th>Name</th><th>Run ID</th><th>Status</th><th>Success Rate</th><th>95% CI</th><th>Latency</th><th>Cost</th><th>Tasks</th></tr>
+<tr>
+<th>Name</th><th>Run ID</th><th>Status</th><th>Success Rate</th>
+<th>95% CI</th><th>Latency</th><th>Cost</th><th>Tasks</th>
+</tr>
 {rows}
 </table>
 </body></html>"""

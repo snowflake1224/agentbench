@@ -73,7 +73,11 @@ class SWEBenchAdapter(BenchmarkAdapter):
                 ),
                 timeout=600.0,
                 budget=Budget(max_tool_calls=50, max_tokens=32000),
-                metadata={"repo": item["repo"], "source": "swebench", "requires_docker": self._use_docker},
+                metadata={
+                    "repo": item["repo"],
+                    "source": "swebench",
+                    "requires_docker": self._use_docker,
+                },
                 split=split,
             ))
         return tasks

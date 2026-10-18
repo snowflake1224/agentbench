@@ -100,7 +100,9 @@ class ClaudeCodeAdapter(ExternalCodingAgentAdapter):
 
     async def _check_availability(self) -> bool:
         import os
-        return bool(os.environ.get("ANTHROPIC_API_KEY")) and self._config.get("cli_path") is not None
+
+        has_key = bool(os.environ.get("ANTHROPIC_API_KEY"))
+        return has_key and self._config.get("cli_path") is not None
 
     async def _invoke_external_agent(self, context: AgentRunContext) -> AgentResult:
         # Integration point: invoke Claude Code CLI/API here

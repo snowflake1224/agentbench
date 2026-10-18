@@ -66,7 +66,13 @@ class PromptStore:
                 versions.append(p)
         return sorted(versions, key=lambda p: p.created_at)
 
-    def create_variant(self, parent_id: str, name: str, content: str, experiment_id: str | None = None) -> PromptVersion:
+    def create_variant(
+        self,
+        parent_id: str,
+        name: str,
+        content: str,
+        experiment_id: str | None = None,
+    ) -> PromptVersion:
         parent = self.get(parent_id)
         if not parent:
             raise ValueError(f"Parent prompt {parent_id} not found")

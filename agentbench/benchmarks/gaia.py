@@ -16,14 +16,20 @@ from agentbench.core.task import Budget, ExpectedBehavior, Task, TaskCategory
 GAIA_SAMPLE_TASKS = [
     {
         "task_id": "gaia_001",
-        "input": "A paper about AI regulation was originally scheduled for May 2023. What month was it actually published?",
+        "input": (
+            "A paper about AI regulation was originally scheduled for May 2023. "
+            "What month was it actually published?"
+        ),
         "answer": "June 2023",
         "level": 1,
         "tools": ["search", "read_file"],
     },
     {
         "task_id": "gaia_002",
-        "input": "According to the 2022 World Bank data, which country had the highest GDP per capita?",
+        "input": (
+            "According to the 2022 World Bank data, "
+            "which country had the highest GDP per capita?"
+        ),
         "answer": "Luxembourg",
         "level": 2,
         "tools": ["search", "calculator"],

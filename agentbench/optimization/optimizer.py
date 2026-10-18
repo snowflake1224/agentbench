@@ -7,11 +7,10 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
-from agentbench.core.experiment import ExperimentConfig, ExperimentRun
+from agentbench.core.experiment import ExperimentConfig
 from agentbench.core.runner import ExperimentRunner
-from agentbench.storage.prompts import PromptStore, PromptVersion
-from agentbench.storage.repository import RunRepository
 from agentbench.statistics.comparison import run_summary
+from agentbench.storage.prompts import PromptStore, PromptVersion
 
 
 class OptimizationConfig(BaseModel):
@@ -57,7 +56,9 @@ class PromptOptimizer:
         self._runner = runner
         self._prompt_store = prompt_store
 
-    def generate_candidates(self, base_prompt: str, num: int, seed: int = 42) -> list[PromptVersion]:
+    def generate_candidates(
+        self, base_prompt: str, num: int, seed: int = 42
+    ) -> list[PromptVersion]:
         rng = random.Random(seed)
         base = self._prompt_store.save(PromptVersion(name="baseline", content=base_prompt))
         candidates = [base]
@@ -74,13 +75,14 @@ class PromptOptimizer:
         return candidates
 
     async def optimize(self, config: OptimizationConfig) -> OptimizationResult:
-        candidates = self.generate_candidates(config.base_prompt, config.num_candidates, config.seed)
+        candidates = self.generate_candidates(
+            config.base_prompt, config.num_candidates, config.seed
+        )
         candidate_results: list[dict[str, Any]] = []
 
         # Evaluate each candidate on validation set
         best_score = -1.0
         best_candidate = candidates[0]
-        best_run: ExperimentRun | None = None
 
         for candidate in candidates:
             exp_config = ExperimentConfig(
@@ -104,7 +106,6 @@ class PromptOptimizer:
             if score > best_score:
                 best_score = score
                 best_candidate = candidate
-                best_run = run
 
             # Update prompt with benchmark results
             candidate.benchmark_results[config.validation_split] = score
