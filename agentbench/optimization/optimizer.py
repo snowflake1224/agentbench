@@ -7,7 +7,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
-from agentbench.core.experiment import ExperimentConfig
+from agentbench.core.experiment import ExperimentConfig, ExperimentRun
 from agentbench.core.runner import ExperimentRunner
 from agentbench.statistics.comparison import run_summary
 from agentbench.storage.prompts import PromptStore, PromptVersion
