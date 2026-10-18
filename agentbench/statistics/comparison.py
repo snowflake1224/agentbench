@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from typing import Any
 
 import numpy as np
@@ -106,7 +107,9 @@ def compare_runs(
     def extract(run: ExperimentRun, attr: str) -> list[float]:
         return [getattr(r, attr) for r in run.task_results]
 
-    def compare_metric(metric: str, transform=None) -> ComparisonResult:
+    def compare_metric(
+        metric: str, transform: Callable[[float], float] | None = None
+    ) -> ComparisonResult:
         vals_a = extract(run_a, metric)
         vals_b = extract(run_b, metric)
         if transform:

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, cast
 
 from agentbench.adapters.external_coding import ClaudeCodeAdapter, ExternalCodingAgentAdapter
 from agentbench.adapters.mock_agent import MockAgentAdapter
@@ -20,7 +20,7 @@ AGENT_REGISTRY: dict[str, type[AgentAdapter]] = {
     "mock_multi_agent": lambda **kw: MockAgentAdapter(agent_type="multi_agent", **kw),  # type: ignore[dict-item]
     "model_single": ModelAgentAdapter,
     "claude_code": ClaudeCodeAdapter,
-    "external_coding": ExternalCodingAgentAdapter,
+    "external_coding": cast(type[AgentAdapter], ExternalCodingAgentAdapter),
 }
 
 
@@ -47,6 +47,6 @@ def create_agent(config: dict[str, Any]) -> AgentAdapter:
         return ClaudeCodeAdapter()
     if agent_type in AGENT_REGISTRY and isinstance(AGENT_REGISTRY[agent_type], type):
         cls = AGENT_REGISTRY[agent_type]
-        return cls()  # type: ignore[call-arg]
+        return cls()
 
     raise ValueError(f"Unknown agent type: {agent_type}")

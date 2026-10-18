@@ -9,10 +9,12 @@ This adapter provides representative tasks and documents external requirements.
 
 from __future__ import annotations
 
+from typing import Any
+
 from agentbench.benchmarks.base import BenchmarkAdapter
 from agentbench.core.task import Budget, ExpectedBehavior, Task, TaskCategory
 
-SWEBENCH_SAMPLE = [
+SWEBENCH_SAMPLE: list[dict[str, Any]] = [
     {
         "task_id": "swe_001",
         "input": "Fix IndexError in pandas/core/indexing.py when using iloc with empty DataFrame",

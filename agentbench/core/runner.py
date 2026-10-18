@@ -13,6 +13,7 @@ from agentbench.benchmarks.registry import get_benchmark
 from agentbench.core.agent import AgentRunContext
 from agentbench.core.experiment import ExperimentConfig, ExperimentRun, RunStatus, TaskResult
 from agentbench.core.reproducibility import get_git_revision
+from agentbench.core.task import Task
 from agentbench.core.trace import TraceEvent
 from agentbench.evaluators.base import get_evaluators
 from agentbench.storage.repository import RunRepository
@@ -68,7 +69,7 @@ class ExperimentRunner:
         try:
             semaphore = asyncio.Semaphore(config.concurrency)
 
-            async def run_task(task) -> TaskResult:
+            async def run_task(task: Task) -> TaskResult:
                 async with semaphore:
                     with trace_span("task", {"task_id": task.task_id, "run_id": run.run_id}):
                         ctx = AgentRunContext(

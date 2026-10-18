@@ -9,10 +9,12 @@ Full ToolBench requires downloading the dataset separately.
 
 from __future__ import annotations
 
+from typing import Any
+
 from agentbench.benchmarks.base import BenchmarkAdapter
 from agentbench.core.task import Budget, ExpectedBehavior, Task, TaskCategory
 
-TOOLBENCH_SAMPLE = [
+TOOLBENCH_SAMPLE: list[dict[str, Any]] = [
     {
         "task_id": "tool_001",
         "input": "Find the current stock price of AAPL using the finance API.",

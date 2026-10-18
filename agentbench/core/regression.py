@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from pydantic import BaseModel, Field
 
 from agentbench.core.experiment import ExperimentRun
@@ -18,10 +20,10 @@ class RegressionThresholds(BaseModel):
 
 class RegressionResult(BaseModel):
     passed: bool
-    checks: list[dict]
+    checks: list[dict[str, Any]]
     baseline_run_id: str
     candidate_run_id: str
-    summary: dict
+    summary: dict[str, Any]
 
 
 def check_regression(
@@ -32,7 +34,7 @@ def check_regression(
     """Compare candidate against baseline for regression detection."""
     thresholds = thresholds or RegressionThresholds()
     comparison = compare_runs(baseline, candidate)
-    checks: list[dict] = []
+    checks: list[dict[str, Any]] = []
 
     # Success rate check
     success_diff = comparison.success_rate.difference

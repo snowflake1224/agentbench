@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field
 
 from agentbench.core.experiment import ExperimentConfig, ExperimentRun
 from agentbench.core.runner import ExperimentRunner
+from agentbench.core.trace import TraceEvent
 from agentbench.statistics.comparison import run_summary
 from agentbench.storage.prompts import PromptStore, PromptVersion
 
@@ -152,7 +153,9 @@ class FineTuningPipeline:
     """
 
     @staticmethod
-    def build_dataset_from_failures(run: ExperimentRun, traces: list) -> list[dict[str, Any]]:
+    def build_dataset_from_failures(
+        run: ExperimentRun, traces: list[TraceEvent]
+    ) -> list[dict[str, Any]]:
         """Extract training examples from failed trajectories."""
         examples = []
         failed_tasks = {r.task_id for r in run.task_results if not r.success}
@@ -167,7 +170,7 @@ class FineTuningPipeline:
         return examples
 
     @staticmethod
-    def export_for_training(examples: list[dict], output_path: str) -> None:
+    def export_for_training(examples: list[dict[str, Any]], output_path: str) -> None:
         """Export dataset in JSONL format for fine-tuning."""
         import json
         from pathlib import Path

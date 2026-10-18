@@ -9,11 +9,13 @@ requires HuggingFace authentication and accepting dataset terms.
 
 from __future__ import annotations
 
+from typing import Any
+
 from agentbench.benchmarks.base import BenchmarkAdapter
 from agentbench.core.task import Budget, ExpectedBehavior, Task, TaskCategory
 
 # Representative GAIA-style tasks (publicly described format)
-GAIA_SAMPLE_TASKS = [
+GAIA_SAMPLE_TASKS: list[dict[str, Any]] = [
     {
         "task_id": "gaia_001",
         "input": (
@@ -99,12 +101,12 @@ class GAIABenchmarkAdapter(BenchmarkAdapter):
     def _load_from_huggingface(self, split: str, subset: list[str] | None) -> list[Task]:
         """Load from HuggingFace datasets (requires HF_TOKEN)."""
         try:
-            from datasets import load_dataset  # type: ignore[import-untyped]
+            from datasets import load_dataset
         except ImportError:
             raise ImportError("Install datasets: pip install datasets") from None
 
         ds = load_dataset("gaia-benchmark/GAIA", "2023_all", split=split)
-        tasks = []
+        tasks: list[Task] = []
         for row in ds:
             task_id = f"gaia_{row.get('task_id', len(tasks))}"
             if subset and task_id not in subset:

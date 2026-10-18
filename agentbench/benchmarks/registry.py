@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from agentbench.benchmarks.base import BenchmarkAdapter
 from agentbench.benchmarks.gaia import GAIABenchmarkAdapter
 from agentbench.benchmarks.local import LocalBenchmarkAdapter
@@ -16,7 +18,7 @@ BENCHMARK_REGISTRY: dict[str, type[BenchmarkAdapter]] = {
 }
 
 
-def get_benchmark(name: str, **kwargs) -> BenchmarkAdapter:
+def get_benchmark(name: str, **kwargs: Any) -> BenchmarkAdapter:
     """Get benchmark adapter by name."""
     if name not in BENCHMARK_REGISTRY:
         raise ValueError(f"Unknown benchmark: {name}. Available: {list(BENCHMARK_REGISTRY.keys())}")

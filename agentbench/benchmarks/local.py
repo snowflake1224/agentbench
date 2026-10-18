@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from agentbench.benchmarks.base import BenchmarkAdapter
 from agentbench.core.task import Budget, ExpectedBehavior, Task, TaskCategory
 
-FIXTURE_TASKS: list[dict] = [
+FIXTURE_TASKS: list[dict[str, Any]] = [
     {
         "task_id": "local_001",
         "category": "general",

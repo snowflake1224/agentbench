@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from typing import Any
 
@@ -24,7 +25,7 @@ prompt_store = PromptStore()
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     yield
     await repo.close()
 
@@ -79,13 +80,13 @@ async def get_run_summary(run_id: str) -> dict[str, Any]:
 
 
 @app.get("/runs/{run_id}/traces")
-async def get_traces(run_id: str, task_id: str | None = None) -> list[dict]:
+async def get_traces(run_id: str, task_id: str | None = None) -> list[dict[str, Any]]:
     traces = await repo.get_traces(run_id, task_id=task_id)
     return [t.model_dump(mode="json") for t in traces]
 
 
 @app.get("/runs/{run_id}/failures")
-async def get_failures(run_id: str) -> list[dict]:
+async def get_failures(run_id: str) -> list[dict[str, Any]]:
     run = await repo.get_run(run_id)
     if not run:
         raise HTTPException(404, "Run not found")
@@ -120,12 +121,12 @@ async def regression_check(request: RegressionRequest) -> dict[str, Any]:
 
 
 @app.get("/prompts")
-async def list_prompts() -> list[dict]:
+async def list_prompts() -> list[dict[str, Any]]:
     return [p.model_dump(mode="json") for p in prompt_store.list_versions()]
 
 
 @app.get("/prompts/{prompt_id}")
-async def get_prompt(prompt_id: str) -> dict:
+async def get_prompt(prompt_id: str) -> dict[str, Any]:
     p = prompt_store.get(prompt_id)
     if not p:
         raise HTTPException(404, "Prompt not found")
