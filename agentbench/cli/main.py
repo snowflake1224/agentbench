@@ -86,7 +86,7 @@ async def compare(run_a: str, run_b: str) -> None:
     table.add_column("Significant")
 
     for metric in [comp.success_rate, comp.latency, comp.cost, comp.tool_calls]:
-        sig = "✓" if metric.significant else ""
+        sig = "yes" if metric.significant else ""
         table.add_row(
             metric.metric,
             f"{metric.value_a:.4f}",
@@ -107,7 +107,7 @@ async def trace(run_id: str) -> None:
         agent = t.agent_id or "-"
         tool = t.tool or ""
         latency = t.latency_ms or ""
-        console.print(f"  [{t.event_type.value}] {agent} {tool} {latency}ms")
+        console.print(f"  [{t.event_type.value}] {agent} {tool} {latency}ms", markup=False)
 
 
 @cli.command("failures")
@@ -154,7 +154,7 @@ async def regression(config: str) -> None:
     status = "[green]PASS[/]" if result.passed else "[red]FAIL[/]"
     console.print(f"Regression check: {status}")
     for check in result.checks:
-        c_status = "✓" if check["passed"] else "✗"
+        c_status = "pass" if check["passed"] else "fail"
         console.print(f"  {c_status} {check['check']}")
 
 
