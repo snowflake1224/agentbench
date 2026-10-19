@@ -98,13 +98,14 @@ def check_regression(
     })
 
     all_passed = all(c["passed"] for c in checks)
+    summary: dict[str, Any] = {
+        "baseline": run_summary(baseline),
+        "candidate": run_summary(candidate),
+    }
     return RegressionResult(
         passed=all_passed,
         checks=checks,
         baseline_run_id=baseline.run_id,
         candidate_run_id=candidate.run_id,
-        summary={
-            "baseline": run_summary(baseline),
-            "candidate": run_summary(candidate),
-        },
+        summary=summary,
     )

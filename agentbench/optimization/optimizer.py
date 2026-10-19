@@ -157,7 +157,7 @@ class FineTuningPipeline:
         run: ExperimentRun, traces: list[TraceEvent]
     ) -> list[dict[str, Any]]:
         """Extract training examples from failed trajectories."""
-        examples = []
+        examples: list[dict[str, Any]] = []
         failed_tasks = {r.task_id for r in run.task_results if not r.success}
         for trace in traces:
             if trace.task_id in failed_tasks and trace.event_type.value == "model_call":
