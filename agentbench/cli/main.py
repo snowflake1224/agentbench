@@ -6,7 +6,7 @@ import asyncio
 import json
 from collections.abc import Callable, Coroutine
 from pathlib import Path
-from typing import Any, ParamSpec, TypeVar
+from typing import Any
 
 import click
 import yaml
@@ -24,11 +24,8 @@ console = Console()
 repo = create_run_repository()
 runner = ExperimentRunner(repo)
 
-P = ParamSpec("P")
-R = TypeVar("R")
 
-
-def async_cmd(f: Callable[P, Coroutine[Any, Any, R]]) -> Callable[P, R]:
+def async_cmd[**P, R](f: Callable[P, Coroutine[Any, Any, R]]) -> Callable[P, R]:
     def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
         return asyncio.run(f(*args, **kwargs))
 
