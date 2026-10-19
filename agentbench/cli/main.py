@@ -26,9 +26,17 @@ runner = ExperimentRunner(repo)
 
 
 def async_cmd[**P, R](f: Callable[P, Coroutine[Any, Any, R]]) -> Callable[P, R]:
+    """Run an async Click callback, preserving the command name and help text."""
+
     def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
         return asyncio.run(f(*args, **kwargs))
 
+    command_name = getattr(f, "__name__", None)
+    if isinstance(command_name, str):
+        wrapper.__name__ = command_name
+    command_doc = getattr(f, "__doc__", None)
+    if command_doc is None or isinstance(command_doc, str):
+        wrapper.__doc__ = command_doc
     return wrapper
 
 
@@ -37,7 +45,7 @@ def cli() -> None:
     """AgentBench: AI Agent Evaluation & Reliability Platform."""
 
 
-@cli.command()
+@cli.command("run")
 @click.argument("config", type=click.Path(exists=True))
 @async_cmd
 async def run(config: str) -> None:
@@ -57,7 +65,7 @@ async def run(config: str) -> None:
     console.print(f"  Cost: ${summary.get('cost_usd', {}).get('mean', 0):.4f}")
 
 
-@cli.command()
+@cli.command("compare")
 @click.argument("run_a")
 @click.argument("run_b")
 @async_cmd
@@ -89,7 +97,7 @@ async def compare(run_a: str, run_b: str) -> None:
     console.print(table)
 
 
-@cli.command()
+@cli.command("trace")
 @click.argument("run_id")
 @async_cmd
 async def trace(run_id: str) -> None:
@@ -102,7 +110,7 @@ async def trace(run_id: str) -> None:
         console.print(f"  [{t.event_type.value}] {agent} {tool} {latency}ms")
 
 
-@cli.command()
+@cli.command("failures")
 @click.argument("run_id")
 @async_cmd
 async def failures(run_id: str) -> None:
@@ -116,7 +124,7 @@ async def failures(run_id: str) -> None:
             console.print(f"  [red]{r.task_id}[/]: {r.failure_categories} (score={r.score:.2f})")
 
 
-@cli.command()
+@cli.command("report")
 @click.argument("run_id")
 @async_cmd
 async def report(run_id: str) -> None:
@@ -129,7 +137,7 @@ async def report(run_id: str) -> None:
     console.print(json.dumps(summary, indent=2, default=str))
 
 
-@cli.command()
+@cli.command("regression")
 @click.argument("config", type=click.Path(exists=True))
 @async_cmd
 async def regression(config: str) -> None:
@@ -150,7 +158,7 @@ async def regression(config: str) -> None:
         console.print(f"  {c_status} {check['check']}")
 
 
-@cli.command()
+@cli.command("optimize")
 @click.argument("config", type=click.Path(exists=True))
 @async_cmd
 async def optimize(config: str) -> None:
